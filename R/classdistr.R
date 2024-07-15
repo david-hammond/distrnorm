@@ -1,52 +1,16 @@
 #' Classified observed data into a distribution class.
 #'
-#' Using bootstrapping to estimate likeliness, this function classifies
-#' observed data into one of the following: Binary, Uniform, Skewed, Normal or Bimodal.
+#' Based on a series of statistical tests, uses bootstrapping to classify
+#' observed data into one of the following distributions: Binary, Uniform, Skewed, Normal or Bimodal.
 #' @importFrom moments skewness kurtosis
 #' @importFrom nortest ad.test
 #' @param x A numeric vector of observations
-#' @param n_bootstrap Number of bootstap iterations
-#' @examples
-#' set.seed(1234)
-#'
-#' # Uniform distribution test
-#' x <- runif(100)
-#' classify_distribution(x)
-#'
-#' # Normal distribution tests
-#' x <- rnorm(100)
-#' classify_distribution(x)
-#'
-#' # Skewed data
-#' x <- c(1, 2, 2, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9, 10, 20, 30, 50, 100)
-#' classify_distribution(x)
-#'
-#' x <- c(1, 2, 2, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9, 10, 20, 30, 50, 100, 1000000)
-#' classify_distribution(x)
-#'
-#' x <- rlnorm(100)
-#' classify_distribution(x)
-#'
-#' x <- exp(1:100)
-#' classify_distribution(x)
-#'
-#' x <- rpois(100, lambda = 0.5)
-#' classify_distribution(x)
-#'
-#' x <- rweibull(100, shape = 0.5)
-#' classify_distribution(x)
-#'
-#' ### Bimodal data NOT RUN
-#' # library(truncnorm)
-#' # nn <- 1e4
-#' # sims <- c(rtruncnorm(nn/2, a=1, b=5, mean=2, sd=.5),
-#' #          rtruncnorm(nn/2, a=1, b=5, mean=4, sd=.5))
-#' # classify_distribution(sims)
-#' @export
+#' @param n_bootstrap Number of bootstrap iterations
+#' @param pc_bootstrap Sampling proportion for bootstrapping
+#' @keywords internal
 #'
 
-# Function to classify distribution using bootstrapping
-classify_distribution <- function(data, n_bootstrap = 1000, pc_bootstrap = 0.9) {
+.classify_distribution <- function(data, n_bootstrap = 20, pc_bootstrap = 0.7) {
 
   # Step 0: Check for binary data
   if (length(unique(data)) == 2) {
@@ -122,11 +86,42 @@ classify_distribution <- function(data, n_bootstrap = 1000, pc_bootstrap = 0.9) 
   return(outliers)
 }
 
-counter = 0
-for (i in 1:100){
-  x = rnorm(100)
-  if(classify_distribution(x) == "Normal"){
-    counter = counter +1
+#' Helper function to check for recommendations
+#' @param x The observations
+#' @param distr_with_outliers The likely distribution with outliers
+#' @param distr_without_outliers The likely distribution without outliers
+#' @param outliers Does the data have IQR outliers
+#' @param classInt_pref The preferred classInt style
+#' @param nclasses The number of desired classes for classInt
+#' @importFrom classInt classIntervals
+#'
+#' @keywords internal
+.recommend = function(x, distr_with_outliers,
+                      distr_without_outliers,
+                      outliers,
+                      classInt_pref,
+                      nclasses){
+  if(distr_with_outliers == "Binary"){
+    tmp = list(norm = "minmax", brks = range(x))
   }
+  if(distr_without_outliers %in%
+     c("Uniform", "Normal", "Bimodal", "Unclassified") &&
+     sum(outliers) == 0){
+    tmp = list(norm = "minmax", brks = range(x))
+  }
+  if(sum(outliers) > 0 &&
+     distr_without_outliers != distr_with_outliers &&
+     distr_without_outliers %in% c("Uniform", "Normal", "Bimodal", "Unclassified")){
+    tmp = list(norm = "goalpost", brks = range(x[!outliers]))
+  }
+  if(grepl("Skewed", distr_without_outliers) && grepl("Skewed", distr_with_outliers)){
+    if(!is.null(nclasses)){
+      tmp = list(norm = classInt_pref, brks = classIntervals(x, n = nclasses, style = classInt_pref)$brks)
+    }else{
+      tmp = list(norm = classInt_pref, brks = classIntervals(x, style = classInt_pref)$brks)
+    }
+
+  }
+  return(tmp)
 }
 

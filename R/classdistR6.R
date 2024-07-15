@@ -6,148 +6,109 @@
 #' @param pivot_column The column name on which the pivot will occur
 #' @param pivot_value The column name of the values to be pivotted
 #' @examples
-#' data(wb)
-#' mdl <- tidymodl$new(wb,
-#'                     pivot_column = "indicator",
-#'                     pivot_value = "value")
-#' ### Use mdldata for modelling
-#' fit = lm(data = mdl$mdldata, gni ~ gcu + ppt)
+#'#' @examples
+#' set.seed(1234)
 #'
-#' ### Can be used to add a yhat value for processed data
+#' # Binary distribution test
+#' x <- sample(c(0,1), 100, replace = TRUE)
+#' classdistr$new(x)
+#' # Uniform distribution test
+#' x <- runif(100)
+#' classdistr$new(x)
 #'
-#' ### This is useful for imputation purposes as below
+#' # Normal distribution tests
+#' x <- rnorm(100)
+#' classdistr$new(x)
 #'
-#' ### NOT RUN
-#' # Use for xgboost imputation
-#' # library(mixgb)
-#' # imp = mixgb(mdl$mdldata, save.models = T)
-#' # tmp = mdl$reconstitute(imp$imputed.data[[1]])
+#' # Skewed data
+#' x <- c(1, 2, 2, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9, 10, 20, 30, 50, 100)
+#' classdistr$new(x)
 #'
-#' ### NOT RUN
-#' # Use for mice imputation
-#' # library(mice)
-#' # imp = mice(as.data.frame(scale(mdl$matrix)), print = FALSE)
-#' # tmp = mdl$reconstitute(complete(imp))
+#' x <- c(1, 2, 2, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9, 10, 20, 30, 50, 100, 1000000)
+#' classdistr$new(x)
 #'
-#' ### In this example we will just use dummy new data
-#' nc = ncol(mdl$mdldata)
-#' nr = nrow(mdl$mdldata)
-#' dm = nc*nr
-#' dummy = matrix(runif(dm),
-#'         ncol = nc) |>
-#'         data.frame()
-#' names(dummy) = names(mdl$mdldata)
-#' tmp = mdl$reconstitute(dummy)
+#' x <- rlnorm(100)
+#' classdistr$new(x)
 #'
-
+#' x <- exp(1:100)
+#' classdistr$new(x)
+#'
+#' x <- rpois(100, lambda = 0.5)
+#' classdistr$new(x)
+#'
+#' x <- rweibull(100, shape = 0.5)
+#' classdistr$new(x)
+#'
+#' ### Bimodal data NOT RUN
+#' # library(truncnorm)
+#' # nn <- 1e4
+#' # sims <- c(rtruncnorm(nn/2, a=1, b=5, mean=2, sd=.5),
+#' #          rtruncnorm(nn/2, a=1, b=5, mean=4, sd=.5))
+#' # classify_distribution(sims)
 #' @export
 #'
 
 classdistr <- R6::R6Class("classdistr",
                             #' @description
                             #' Creates a new instance of this [R6][R6::R6Class] class.
-                            #' @field data (`data.frame()`)\cr
-                            #'   The original tidy long data frame
-                            #' @field mdldata (`data.frame()`)\cr
-                            #'   The model matrix version of the data
+                            #' @field data (`numeric()`)\cr
+                            #'   Original observations
+                            #' @field outliers (`logical()`)\cr
+                            #'   Logical vector indicating is observations are outliers
+                            #' @field likely_distribution_incl_outliers (`character()`)\cr
+                            #'   Likely distribution type including outliers
+                            #' @field likely_distribution_excl_outliers (`character()`)\cr
+                            #'   Likely distribution type eccluding outliers
+                            #' @field recommended_normalisation (`character()`)\cr
+                            #'   Recommended class intervals based on distribution
+                            #' @field recommended_breaks (`numeric()`)\cr
+                            #'   Recommended breaks for classes
+                            #' @field number_of_classes (`numeric()`)\cr
+                            #'   Number of classes identified
                             lock_objects = FALSE,
                             public = list(
                               data = NULL,
                               outliers = NULL,
                               likely_distribution_incl_outliers = NULL,
                               likely_distribution_excl_outliers = NULL,
-                              recommended_classInt = NULL,
-                              recommended_classInt_brks = NULL,
+                              recommended_normalisation = NULL,
+                              recommended_breaks = NULL,
+                              number_of_classes = NULL,
                               #' @description
-                              #' Create a new tidymodl object.
-                              #' @param df A tidy long data frame
-                              #' @param pivot_column The column name on which the pivot will occur
-                              #' @param pivot_value The column name of the values to be pivotted
-                              #' @return A new `tidymodl` object.
+                              #' Create a new classdistr object.
+                              #' @param x A numeric vector of observations
+                              #' @param n_bootstrap Number of bootstrap iterations
+                              #' @param pc_bootstrap Sampling proportion for bootstrapping
+                              #' @param classInt_preference Prefernce for classInt breaks
+                              #' @param nclasses Preference for number of classes for classInt intervals
+                              #' @return A new `classdistr` object.
                               initialize = function(x,
-                                                    pivot_column,
-                                                    pivot_value) {
-                                self$data = df
-                                tmp = .get_dm(df,
-                                              pivot_column,
-                                              pivot_value)
-                                self$mdldata = tmp$mat[,-1]
-                                private$key_ind = tmp$mat$id
-                                private$master = tmp$master
-                                private$key = tmp$key
-                              },
-                              #' @description
-                              #' Adds a results matrix
-                              #' @param m A results matrix
-                              reconstitute = function(m = NULL) {
-                                if(!is.null(m)){
-                                  df = private$master
-                                  m = as.data.frame(m)
-                                  m$id = private$key_ind
-                                  m = m |>
-                                    pivot_longer(cols = -id, names_to = "vid", values_to = "yhat")
-                                  df = df |> left_join(m, by = c("vid", "id"))
-                                  df = df[, c(names(self$data), "yhat")]
-                                }else{
-                                  df = self$data
-                                }
-                                return(df)
-                              },
+                                                    n_bootstrap = 20,
+                                                    pc_bootstrap = 0.7,
+                                                    classInt_preference = 'jenks',
+                                                    nclasses = NULL) {
+                                self$data = x
+                                self$outliers = .check_for_outliers(x)
+                                self$likely_distribution_incl_outliers = .classify_distribution(x)
+                                self$likely_distribution_excl_outliers = .classify_distribution(x[!self$outliers])
+                                tmp = .recommend(x, self$likely_distribution_incl_outliers,
+                                                 self$likely_distribution_excl_outliers,
+                                                 self$outliers,
+                                                 classInt_preference,
+                                                 nclasses)
+                                self$recommended_normalisation = tmp$norm
+                                self$recommended_breaks = tmp$brks
+                                self$number_of_classes = length(tmp$brks) - 1
+
+                              }#,
                               #' @description
                               #' Prints the key and the head matrix
-                              print = function() {
-                                cat("Variable Key: \n")
-                                print(private$key)
-                                cat("Head Data Matrix: \n")
-                                print(head(self$mdldata, 5))
-                              }
-                            ),
-                        private = list(
-                          master = NULL,
-                          key_ind = NULL,
-                          key = NULL
-                        )
+                             # print = function() {
+                             # cat("Likely Distribution: \n")
+                             # print(private$key)
+                             # cat("Head Data Matrix: \n")
+                             # print(head(self$mdldata, 5))
+                             # }
+                            )
 )
-
-#' Get pivot_column key data frame
-#'
-#' @param tmp A long data frame
-#' @param pivot_column The column name on which the pivot will occur
-#'
-#'
-#' @keywords internal
-
-.get_key = function(tmp, pivot_column){
-  key = data.frame(variable = unique(tmp[,pivot_column]), vid = apply(unique(tmp[,pivot_column]), 1, tolower))
-  names(key)[1] = pivot_column
-  key$vid = tm::removePunctuation(key$vid)
-  key$vid = tm::removeWords(key$vid, words = stopwords())
-  key$vid = abbreviate(key$vid, minlength = 3)
-  key$vid = make.unique(key$vid)
-  return(key)
-}
-
-#' Get pivot_column key data frame
-#'
-#' @param df A long data frame
-#' @param pivot_column The column name on which the pivot will occur
-#' @param pivot_value The column name of the values to be pivoted
-#'
-#' @keywords internal
-.get_dm = function(df, pivot_column, pivot_value){
-  obs_fields = paste0(".data$", setdiff(names(df), pivot_value))
-  cmd <- paste0("df <- df |> complete(", paste(obs_fields, collapse = ","), ")")
-  eval(parse(text = cmd))
-  key = .get_key(df, pivot_column)
-  df = df |> left_join(key, by = pivot_column) |>
-    select(-all_of(pivot_column))
-  obs_fields = setdiff(names(df), c("vid", pivot_value))
-  y = decompose_table(df, "id", all_of(obs_fields))
-  y$matrix = y$child_table |>
-    pivot_wider(names_from = .data$vid, values_from = .data$value)
-  df = df |> left_join(y$parent_table, by = c("iso3c", "year")) |>
-    left_join(key, by = "vid")
-  tmp = list(mat = y$matrix, master = df, key = key)
-  return(tmp)
-}
 
