@@ -12,7 +12,6 @@ Creates a recommended classInt based on the type of distribution.
 Creates a classdistr R6 class for recommending a classInt based on the shape of the distribution of the observed data
 }
 \examples{
-#' @examples
 set.seed(1234)
 
 # Binary distribution test
@@ -50,7 +49,7 @@ classdistr$new(x)
 # nn <- 1e4
 # sims <- c(rtruncnorm(nn/2, a=1, b=5, mean=2, sd=.5),
 #          rtruncnorm(nn/2, a=1, b=5, mean=4, sd=.5))
-# classify_distribution(sims)
+# classdistr$new(sims)
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -61,11 +60,8 @@ Original observations}
 \item{\code{outliers}}{(\code{logical()})\cr
 Logical vector indicating is observations are outliers}
 
-\item{\code{likely_distribution_incl_outliers}}{(\code{character()})\cr
+\item{\code{likely_distribution}}{(\code{character()})\cr
 Likely distribution type including outliers}
-
-\item{\code{likely_distribution_excl_outliers}}{(\code{character()})\cr
-Likely distribution type eccluding outliers}
 
 \item{\code{recommended_normalisation}}{(\code{character()})\cr
 Recommended class intervals based on distribution}
@@ -75,6 +71,15 @@ Recommended breaks for classes}
 
 \item{\code{number_of_classes}}{(\code{numeric()})\cr
 Number of classes identified}
+
+\item{\code{normalised_values}}{(\code{numeric()})\cr
+Normalised values based on recommendations}
+
+\item{\code{polarity}}{(\code{numeric(1)})\cr
+Which direction should the normalisation occur}
+
+\item{\code{percentiles}}{(\code{numeric()})\cr
+Observation percentiles}
 }
 \if{html}{\out{</div>}}
 }
@@ -82,6 +87,8 @@ Number of classes identified}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-classdistr-new}{\code{classdistr$new()}}
+\item \href{#method-classdistr-print}{\code{classdistr$print()}}
+\item \href{#method-classdistr-plot}{\code{classdistr$plot()}}
 \item \href{#method-classdistr-clone}{\code{classdistr$clone()}}
 }
 }
@@ -96,10 +103,11 @@ Create a new classdistr object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{classdistr$new(
   x,
+  polarity = 1,
   n_bootstrap = 20,
   pc_bootstrap = 0.7,
   classInt_preference = "jenks",
-  nclasses = NULL
+  num_classes_pref = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -108,19 +116,48 @@ Create a new classdistr object.
 \describe{
 \item{\code{x}}{A numeric vector of observations}
 
+\item{\code{polarity}}{Which direction should the normalisation occur, defaults to
+1 but can either be:
+\itemize{
+\item \strong{1:}: Lowest value is normalised to 0, highest value is
+normalised to 1
+\item \strong{-1:} Highest value is normalised to 0, lowest value is
+normalised to 1
+}}
+
 \item{\code{n_bootstrap}}{Number of bootstrap iterations}
 
 \item{\code{pc_bootstrap}}{Sampling proportion for bootstrapping}
 
 \item{\code{classInt_preference}}{Prefernce for classInt breaks}
 
-\item{\code{nclasses}}{Preference for number of classes for classInt intervals}
+\item{\code{num_classes_pref}}{Preference for number of classes for classInt intervals}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 A new \code{classdistr} object.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-classdistr-print"></a>}}
+\if{latex}{\out{\hypertarget{method-classdistr-print}{}}}
+\subsection{Method \code{print()}}{
+Prints the classdistr
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{classdistr$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-classdistr-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-classdistr-plot}{}}}
+\subsection{Method \code{plot()}}{
+Plots the normalised values against the original
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{classdistr$plot()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-classdistr-clone"></a>}}

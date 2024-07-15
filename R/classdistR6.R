@@ -2,11 +2,22 @@
 #'
 #' Creates a classdistr R6 class for recommending a classInt based on the shape of the distribution of the observed data
 #' @importFrom R6 R6Class
-#' @param x A tidy long data frame
-#' @param pivot_column The column name on which the pivot will occur
-#' @param pivot_value The column name of the values to be pivotted
+#' @importFrom COINr n_prank
+#' @importFrom piecenorm piecewise_normalisation
+#' @param x A numeric vector of observations
+#' @param polarity Which direction should the normalisation occur, defaults to
+#' 1 but can either be:
+#' \itemize{
+#' \item \strong{1:}: Lowest value is normalised to 0, highest value is
+#' normalised to 1
+#' \item \strong{-1:} Highest value is normalised to 0, lowest value is
+#' normalised to 1
+#' }
+#' @param n_bootstrap Number of bootstrap iterations
+#' @param pc_bootstrap Sampling proportion for bootstrapping
+#' @param classInt_pref Preference for classInt breaks
+#' @param num_classes_pref Preference for number of classInt breaks
 #' @examples
-#'#' @examples
 #' set.seed(1234)
 #'
 #' # Binary distribution test
@@ -55,16 +66,20 @@ classdistr <- R6::R6Class("classdistr",
                             #'   Original observations
                             #' @field outliers (`logical()`)\cr
                             #'   Logical vector indicating is observations are outliers
-                            #' @field likely_distribution_incl_outliers (`character()`)\cr
+                            #' @field likely_distribution (`character()`)\cr
                             #'   Likely distribution type including outliers
-                            #' @field likely_distribution_excl_outliers (`character()`)\cr
-                            #'   Likely distribution type eccluding outliers
                             #' @field recommended_normalisation (`character()`)\cr
                             #'   Recommended class intervals based on distribution
                             #' @field recommended_breaks (`numeric()`)\cr
                             #'   Recommended breaks for classes
                             #' @field number_of_classes (`numeric()`)\cr
                             #'   Number of classes identified
+                            #' @field normalised_values (`numeric()`)\cr
+                            #'   Normalised values based on recommendations
+                            #' @field polarity (`numeric(1)`)\cr
+                            #'   Which direction should the normalisation occur
+                            #' @field percentiles (`numeric()`)\cr
+                            #'   Observation percentiles
                             lock_objects = FALSE,
                             public = list(
                               data = NULL,
@@ -73,33 +88,42 @@ classdistr <- R6::R6Class("classdistr",
                               recommended_normalisation = NULL,
                               recommended_breaks = NULL,
                               number_of_classes = NULL,
+                              normalised_values = NULL,
+                              polarity = NULL,
+                              percentiles = NULL,
                               #' @description
                               #' Create a new classdistr object.
                               #' @param x A numeric vector of observations
+                              #'
                               #' @param n_bootstrap Number of bootstrap iterations
                               #' @param pc_bootstrap Sampling proportion for bootstrapping
                               #' @param classInt_preference Prefernce for classInt breaks
-                              #' @param nclasses Preference for number of classes for classInt intervals
+                              #' @param num_classes_pref Preference for number of classes for classInt intervals
                               #' @return A new `classdistr` object.
                               initialize = function(x,
+                                                    polarity = 1,
                                                     n_bootstrap = 20,
                                                     pc_bootstrap = 0.7,
                                                     classInt_preference = 'jenks',
-                                                    nclasses = NULL) {
+                                                    num_classes_pref = NULL) {
+                                stopifnot("The data has no variance, execution halted." = sd(x) != 0)
                                 self$data = x
                                 self$outliers = .check_for_outliers(x)
+                                self$polarity = polarity
                                 self$likely_distribution = .classify_distribution(x[!self$outliers])
                                 tmp = .recommend(x, self$likely_distribution,
                                                  self$outliers,
                                                  classInt_preference,
-                                                 nclasses)
+                                                 num_classes_pref)
                                 self$recommended_normalisation = tmp$norm
                                 self$recommended_breaks = tmp$brks
                                 self$number_of_classes = length(tmp$brks) - 1
+                                self$normalised_values = piecewise_normalisation(x, self$recommended_breaks, self$polarity)
+                                self$percentiles = n_prank(x)
 
                               },
                               #' @description
-                              #' Prints the key and the head matrix
+                              #' Prints the classdistr
                              print = function() {
                              cat("Likely Distribution: \n")
                              print(self$likely_distribution)
@@ -107,6 +131,13 @@ classdistr <- R6::R6Class("classdistr",
                              print(self$recommended_normalisation)
                              cat("Recommended Cut Breaks: \n")
                              print(self$recommended_breaks)
+                             },
+                             #' @description
+                             #' Plots the normalised values against the original
+                             plot = function(){
+                               plot(self$data, self$normalised_values,
+                                    xlab = "Original",
+                                    ylab = "Normalised")
                              }
 
                             )
