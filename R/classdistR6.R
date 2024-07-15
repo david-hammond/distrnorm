@@ -44,7 +44,7 @@
 #' # nn <- 1e4
 #' # sims <- c(rtruncnorm(nn/2, a=1, b=5, mean=2, sd=.5),
 #' #          rtruncnorm(nn/2, a=1, b=5, mean=4, sd=.5))
-#' # classify_distribution(sims)
+#' # classdistr$new(sims)
 #' @export
 #'
 
@@ -69,8 +69,7 @@ classdistr <- R6::R6Class("classdistr",
                             public = list(
                               data = NULL,
                               outliers = NULL,
-                              likely_distribution_incl_outliers = NULL,
-                              likely_distribution_excl_outliers = NULL,
+                              likely_distribution = NULL,
                               recommended_normalisation = NULL,
                               recommended_breaks = NULL,
                               number_of_classes = NULL,
@@ -89,10 +88,8 @@ classdistr <- R6::R6Class("classdistr",
                                                     nclasses = NULL) {
                                 self$data = x
                                 self$outliers = .check_for_outliers(x)
-                                self$likely_distribution_incl_outliers = .classify_distribution(x)
-                                self$likely_distribution_excl_outliers = .classify_distribution(x[!self$outliers])
-                                tmp = .recommend(x, self$likely_distribution_incl_outliers,
-                                                 self$likely_distribution_excl_outliers,
+                                self$likely_distribution = .classify_distribution(x[!self$outliers])
+                                tmp = .recommend(x, self$likely_distribution,
                                                  self$outliers,
                                                  classInt_preference,
                                                  nclasses)
@@ -100,15 +97,18 @@ classdistr <- R6::R6Class("classdistr",
                                 self$recommended_breaks = tmp$brks
                                 self$number_of_classes = length(tmp$brks) - 1
 
-                              }#,
+                              },
                               #' @description
                               #' Prints the key and the head matrix
-                             # print = function() {
-                             # cat("Likely Distribution: \n")
-                             # print(private$key)
-                             # cat("Head Data Matrix: \n")
-                             # print(head(self$mdldata, 5))
-                             # }
+                             print = function() {
+                             cat("Likely Distribution: \n")
+                             print(self$likely_distribution)
+                             cat("Recommended Normalisation: \n")
+                             print(self$recommended_normalisation)
+                             cat("Recommended Cut Breaks: \n")
+                             print(self$recommended_breaks)
+                             }
+
                             )
 )
 

@@ -96,25 +96,24 @@
 #' @importFrom classInt classIntervals
 #'
 #' @keywords internal
-.recommend = function(x, distr_with_outliers,
-                      distr_without_outliers,
+.recommend = function(x,
+                      distr,
                       outliers,
                       classInt_pref,
                       nclasses){
-  if(distr_with_outliers == "Binary"){
+  if(distr == "Binary"){
     tmp = list(norm = "minmax", brks = range(x))
   }
-  if(distr_without_outliers %in%
+  if(distr %in%
      c("Uniform", "Normal", "Bimodal", "Unclassified") &&
      sum(outliers) == 0){
     tmp = list(norm = "minmax", brks = range(x))
   }
   if(sum(outliers) > 0 &&
-     distr_without_outliers != distr_with_outliers &&
-     distr_without_outliers %in% c("Uniform", "Normal", "Bimodal", "Unclassified")){
+     distr %in% c("Uniform", "Normal", "Bimodal", "Unclassified")){
     tmp = list(norm = "goalpost", brks = range(x[!outliers]))
   }
-  if(grepl("Skewed", distr_without_outliers) && grepl("Skewed", distr_with_outliers)){
+  if(grepl("Skewed", distr)){
     if(!is.null(nclasses)){
       tmp = list(norm = classInt_pref, brks = classIntervals(x, n = nclasses, style = classInt_pref)$brks)
     }else{
