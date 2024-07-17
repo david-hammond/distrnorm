@@ -62,13 +62,7 @@ Original observations}
 Logical vector indicating is observations are
 outliers}
 
-\item{\code{likely_distribution_with_outliers}}{(\code{character()})\cr
-Likely distribution type including outliers}
-
-\item{\code{likely_distribution_without_outliers}}{(\code{character()})\cr
-Likely distribution type iexcluding outliers}
-
-\item{\code{suggested_distribution}}{(\code{character()})\cr
+\item{\code{fitted_distribution}}{(\code{character()})\cr
 Suggested distribution}
 
 \item{\code{normalisation}}{(\code{character()})\cr
@@ -81,7 +75,7 @@ Recommended breaks for classes}
 \item{\code{number_of_classes}}{(\code{numeric()})\cr
 Number of classes identified}
 
-\item{\code{normalised_values}}{(\code{numeric()})\cr
+\item{\code{normalised_data}}{(\code{numeric()})\cr
 Normalised values based on recommendations}
 
 \item{\code{polarity}}{(\code{numeric(1)})\cr
@@ -89,6 +83,12 @@ Which direction should the normalisation occur}
 
 \item{\code{percentiles}}{(\code{numeric()})\cr
 Observation percentiles}
+
+\item{\code{fittedmodel}}{(\code{character()})\cr
+Fitted univariate model}
+
+\item{\code{model}}{(\code{univariateML()})\cr
+Fitted univariate model parameters}
 }
 \if{html}{\out{</div>}}
 }
@@ -117,9 +117,10 @@ Create a new modldistr object.
   x,
   polarity = 1,
   n_bootstrap = 20,
-  pc_bootstrap = 0.7,
+  pc_bootstrap = 0.8,
   classint_preference = "jenks",
-  num_classes_pref = NULL
+  num_classes_pref = NULL,
+  potential_distrs = c("unif", "power", "norm", "lnorm", "weibull", "pareto", "exp")
 )}\if{html}{\out{</div>}}
 }
 
@@ -145,6 +146,8 @@ normalised to 1
 
 \item{\code{num_classes_pref}}{Preference for number of classes for
 classInt intervals}
+
+\item{\code{potential_distrs}}{The types of distributions to fit}
 }
 \if{html}{\out{</div>}}
 }
@@ -176,7 +179,8 @@ Plots the normalised values against the original
 \if{html}{\out{<a id="method-modldistr-hist"></a>}}
 \if{latex}{\out{\hypertarget{method-modldistr-hist}{}}}
 \subsection{Method \code{hist()}}{
-Plots the normalised values against the original
+Histogram of normalised values against the
+original
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{modldistr$hist()}\if{html}{\out{</div>}}
 }

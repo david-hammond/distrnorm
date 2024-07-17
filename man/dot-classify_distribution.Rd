@@ -4,7 +4,12 @@
 \alias{.classify_distribution}
 \title{Classified observed data into a distribution class.}
 \usage{
-.classify_distribution(data, n_bootstrap = 20, pc_bootstrap = 0.7)
+.classify_distribution(
+  data,
+  n_bootstrap = 20,
+  pc_bootstrap = 0.7,
+  potential_distrs
+)
 }
 \arguments{
 \item{n_bootstrap}{Number of bootstrap iterations}

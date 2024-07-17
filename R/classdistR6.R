@@ -73,16 +73,9 @@ modldistr <- R6::R6Class("modldistr",
                 #'   Logical vector indicating is observations are
                 #'   outliers
                 outliers = NULL,
-                #' @field likely_distribution_with_outliers (`character()`)\cr
-                #'   Likely distribution type including outliers
-                likely_distribution_with_outliers = NULL,
-                #' @field likely_distribution_without_outliers
-                #' (`character()`)\cr
-                #'   Likely distribution type iexcluding outliers
-                likely_distribution_without_outliers = NULL,
-                #' @field suggested_distribution (`character()`)\cr
+                #' @field fitted_distribution (`character()`)\cr
                 #'   Suggested distribution
-                suggested_distribution = NULL,
+                fitted_distribution = NULL,
                 #' @field normalisation (`character()`)\cr
                 #'   Recommended class interval style based on
                 #'   distribution
@@ -102,6 +95,12 @@ modldistr <- R6::R6Class("modldistr",
                 #' @field percentiles (`numeric()`)\cr
                 #'   Observation percentiles
                 percentiles = NULL,
+                #' @field fittedmodel (`character()`)\cr
+                #'   Fitted univariate model
+                fittedmodel = NULL,
+                #' @field model (`univariateML()`)\cr
+                #'   Fitted univariate model parameters
+                model = NULL,
                 #' @description
                 #' Create a new modldistr object.
                 #' @param x A numeric vector of observations
@@ -110,30 +109,39 @@ modldistr <- R6::R6Class("modldistr",
                 #' @param classint_preference Prefernce for classInt breaks
                 #' @param num_classes_pref Preference for number of classes for
                 #' classInt intervals
+                #' @param potential_distrs The types of distributions to fit
                 #' @return A new `modldistr` object.
                 initialize = function(x,
                                       polarity = 1,
                                       n_bootstrap = 20,
-                                      pc_bootstrap = 0.7,
+                                      pc_bootstrap = 0.8,
                                       classint_preference = "jenks",
-                                      num_classes_pref = NULL) {
+                                      num_classes_pref = NULL,
+                                      potential_distrs = c("unif",
+                                                           "power",
+                                                           "norm",
+                                                           "lnorm",
+                                                           "weibull",
+                                                           "pareto",
+                                                           "exp")) {
                   stopifnot("The data has no variance, execution halted." =
                               sd(x) != 0)
                   self$data <- x
                   self$outliers <- .check_for_outliers(x)
                   self$polarity <- polarity
-                  self$likely_distribution_with_outliers <-
-                    .classify_distribution(x)
-                  self$likely_distribution_without_outliers <-
-                    .classify_distribution(x[!self$outliers])
-                  self$suggested_distribution <-
-                    .classify_distribution(x[!self$outliers])
-                  tmp <- .recommend(x, self$suggested_distribution,
+                  tmp <-
+                    .classify_distribution(x,
+                                           n_bootstrap,
+                                           pc_bootstrap,
+                                           potential_distrs)
+                  tmp <- .recommend(x, tmp,
                                     self$outliers,
                                     classint_preference,
                                     num_classes_pref)
                   self$normalisation <- tmp$norm
                   self$breaks <- tmp$brks
+                  self$fitted_distribution <- attributes(tmp$mdl)$model
+                  self$distrmodel = tmp$mdl
                   self$number_of_classes <- length(tmp$brks) - 1
                   self$normalised_data <-
                     piecenorm(x, self$breaks, self$polarity)
@@ -142,10 +150,10 @@ modldistr <- R6::R6Class("modldistr",
                 #' @description Prints the modldistr
                 print = function() {
                   cat("Likely Distribution: \n")
-                  print(self$suggested_distribution)
-                  cat("Normalisation: \n")
+                  print(self$fitted_distribution)
+                  cat("Suggested Normalisation: \n")
                   print(self$normalisation)
-                  cat("Breaks: \n")
+                  cat("Suggested Breaks: \n")
                   print(self$breaks)
                 },
                 #' @description Plots the normalised values against the original

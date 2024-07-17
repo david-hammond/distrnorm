@@ -18,6 +18,8 @@
 \item{distr_without_outliers}{The likely distribution without outliers}
 
 \item{classInt_pref}{The preferred classInt style}
+
+\item{potential_distrs}{The types of distributions to fit}
 }
 \description{
 Helper function to check for recommendations

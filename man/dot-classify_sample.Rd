@@ -4,7 +4,7 @@
 \alias{.classify_sample}
 \title{Helper function to classify a single sample}
 \usage{
-.classify_sample(sample)
+.classify_sample(sample, potential_distrs)
 }
 \arguments{
 \item{sample}{Bootstrap sample}
