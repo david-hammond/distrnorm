@@ -1,4 +1,4 @@
-Package: classdistr
+Package: distrnorm
 Title: Generates a Normalisation Model Based on Likely Distribution
 Version: 1.0.0
 Authors@R: person("David", "Hammond", email = "anotherdavidhammond@gmail.com", role = c("aut", "cre"))
@@ -6,7 +6,7 @@ Author: David Hammond [aut, cre]
 URL: https://github.com/david-hammond/piecenorms
 BugReports: https://github.com/david-hammond/piecenorms/issues
 Maintainer: David Hammond <anotherdavidhammond@gmail.com>
-Description: Provides a modldistr R6 class that recommends a normalisation approach based on the likely distribution of the data. It provides an R6 class that first analyses the distribution of the data to classify it as categorical or continous. It then provides the results of the normalisation technique selected by the user. Plotting methods are provides to allow the user to compare and contrast the results of different normalisation techniques.
+Description: Provides a distrnorm R6 class that recommends a normalisation approach based on the likely distribution of the data. It provides an R6 class that first analyses the distribution of the data to classify it as categorical or continous. It then provides the results of the normalisation technique selected by the user. Plotting methods are provides to allow the user to compare and contrast the results of different normalisation techniques.
 License: MIT + file LICENSE
 Suggests: 
     testthat (>= 3.0.0)

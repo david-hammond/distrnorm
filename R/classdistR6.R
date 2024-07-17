@@ -1,6 +1,6 @@
 #' Creates a recommended classInt based on the type of distribution.
 #'
-#' Creates a modldistr R6 class for recommending a classInt based on the shape
+#' Creates a distrnorm R6 class for recommending a classInt based on the shape
 #' of the distribution of the observed data
 #' @importFrom R6 R6Class
 #' @importFrom COINr n_prank
@@ -21,44 +21,44 @@
 #'
 #' # Binary distribution test
 #' x <- sample(c(0,1), 100, replace = TRUE)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #' # Uniform distribution test
 #' x <- runif(100)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #'
 #' # Normal distribution tests
 #' x <- rnorm(100)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #'
 #' # Skewed data
 #' x <- c(1, 2, 2, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9, 10, 20, 30, 50, 100)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #'
 #' x <- c(1, 2, 2, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9, 10, 20, 30, 50, 100, 1000000)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #'
 #' x <- rlnorm(100)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #'
 #' x <- exp(1:100)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #'
 #' x <- rpois(100, lambda = 0.5)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #'
 #' x <- rweibull(100, shape = 0.5)
-#' modldistr$new(x)
+#' distrnorm$new(x)
 #'
 #' ### Bimodal data NOT RUN
 #' # library(truncnorm)
 #' # nn <- 1e4
 #' # sims <- c(rtruncnorm(nn/2, a=1, b=5, mean=2, sd=.5),
 #' #          rtruncnorm(nn/2, a=1, b=5, mean=4, sd=.5))
-#' # modldistr$new(sims)
+#' # distrnorm$new(sims)
 #' @export
 #'
 
-modldistr <- R6::R6Class("modldistr",
+distrnorm <- R6::R6Class("distrnorm",
   #' @description
   #' Creates a new instance of this [R6][R6::R6Class]
   #' class.
@@ -100,7 +100,7 @@ modldistr <- R6::R6Class("modldistr",
                 #'   Fitted univariate model parameters
                 model = NULL,
                 #' @description
-                #' Create a new modldistr object.
+                #' Create a new distrnorm object.
                 #' @param x A numeric vector of observations
                 #' @param n_bootstrap Number of bootstrap iterations
                 #' @param pc_bootstrap Sampling proportion for bootstrapping
@@ -108,7 +108,7 @@ modldistr <- R6::R6Class("modldistr",
                 #' @param num_classes_pref Preference for number of classes for
                 #' classInt intervals
                 #' @param potential_distrs The types of distributions to fit
-                #' @return A new `modldistr` object.
+                #' @return A new `distrnorm` object.
                 initialize = function(x,
                                       polarity = 1,
                                       classint_preference = "jenks",
@@ -140,7 +140,7 @@ modldistr <- R6::R6Class("modldistr",
                     piecenorm(x, self$breaks, self$polarity)
                   self$percentiles <- n_prank(self$normalised_data)
                 },
-                #' @description Prints the modldistr
+                #' @description Prints the distrnorm
                 print = function() {
                   cat("Likely Distribution: \n")
                   print(self$fitted_distribution)
@@ -196,13 +196,14 @@ modldistr <- R6::R6Class("modldistr",
                 },
                 #' @description Returns a data frame of the normalisation
                 to_data_frame = function(){
-                  tmp <- data.frame(original = self$data,
+                  tmp <- data.frame(value = self$data,
                              percentile = self$percentiles)
                   brks <- c(-Inf, self$breaks, Inf)
                   int <- cut(self$data, breaks = brks,
                                  include.lowest = TRUE)
                   tmp$bins <- as.numeric(int)
                   tmp$int <- int
+                  tmp$normalised <- self$normalised_data
                   return(tmp)
 
                 }

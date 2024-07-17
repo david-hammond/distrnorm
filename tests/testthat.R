@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(classdistr)
+library(distrnorm)
 
-test_check("classdistr")
+test_check("distrnorm")
