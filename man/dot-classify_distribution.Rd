@@ -15,6 +15,7 @@
 }
 \description{
 Based on a series of statistical tests, uses bootstrapping to classify
-observed data into one of the following distributions: Binary, Uniform, Skewed, Normal or Bimodal.
+observed data into one of the following distributions: Binary, Uniform,
+Skewed, Normal or Bimodal.
 }
 \keyword{internal}

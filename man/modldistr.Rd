@@ -9,7 +9,8 @@ Creates a recommended classInt based on the type of distribution.
 Creates a recommended classInt based on the type of distribution.
 }
 \details{
-Creates a modldistr R6 class for recommending a classInt based on the shape of the distribution of the observed data
+Creates a modldistr R6 class for recommending a classInt based on the shape
+of the distribution of the observed data
 }
 \examples{
 set.seed(1234)
@@ -97,6 +98,7 @@ Observation percentiles}
 \item \href{#method-modldistr-new}{\code{modldistr$new()}}
 \item \href{#method-modldistr-print}{\code{modldistr$print()}}
 \item \href{#method-modldistr-plot}{\code{modldistr$plot()}}
+\item \href{#method-modldistr-hist}{\code{modldistr$hist()}}
 \item \href{#method-modldistr-setManualBreaks}{\code{modldistr$setManualBreaks()}}
 \item \href{#method-modldistr-clone}{\code{modldistr$clone()}}
 }
@@ -116,7 +118,7 @@ Create a new modldistr object.
   polarity = 1,
   n_bootstrap = 20,
   pc_bootstrap = 0.7,
-  classInt_preference = "jenks",
+  classint_preference = "jenks",
   num_classes_pref = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -139,9 +141,10 @@ normalised to 1
 
 \item{\code{pc_bootstrap}}{Sampling proportion for bootstrapping}
 
-\item{\code{classInt_preference}}{Prefernce for classInt breaks}
+\item{\code{classint_preference}}{Prefernce for classInt breaks}
 
-\item{\code{num_classes_pref}}{Preference for number of classes for classInt intervals}
+\item{\code{num_classes_pref}}{Preference for number of classes for
+classInt intervals}
 }
 \if{html}{\out{</div>}}
 }
@@ -166,6 +169,16 @@ Prints the modldistr
 Plots the normalised values against the original
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{modldistr$plot()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-modldistr-hist"></a>}}
+\if{latex}{\out{\hypertarget{method-modldistr-hist}{}}}
+\subsection{Method \code{hist()}}{
+Plots the normalised values against the original
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{modldistr$hist()}\if{html}{\out{</div>}}
 }
 
 }

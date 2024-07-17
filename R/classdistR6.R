@@ -93,9 +93,9 @@ modldistr <- R6::R6Class("modldistr",
                 #' @field number_of_classes (`numeric()`)\cr
                 #'   Number of classes identified
                 number_of_classes = NULL,
-                #' @field normalised_values (`numeric()`)\cr
+                #' @field normalised_data (`numeric()`)\cr
                 #'   Normalised values based on recommendations
-                normalised_values = NULL,
+                normalised_data = NULL,
                 #' @field polarity (`numeric(1)`)\cr
                 #'   Which direction should the normalisation occur
                 polarity = NULL,
@@ -135,7 +135,7 @@ modldistr <- R6::R6Class("modldistr",
                   self$normalisation <- tmp$norm
                   self$breaks <- tmp$brks
                   self$number_of_classes <- length(tmp$brks) - 1
-                  self$normalised_values <-
+                  self$normalised_data <-
                     piecenorm(x, self$breaks, self$polarity)
                   self$percentiles <- n_prank(x)
                 },
@@ -150,9 +150,28 @@ modldistr <- R6::R6Class("modldistr",
                 },
                 #' @description Plots the normalised values against the original
                 plot = function() {
-                  plot(self$data, self$normalised_values,
+                  plot(self$data, self$normalised_data,
                        xlab = "Original",
                        ylab = "Normalised")
+                },
+                #' @description Histogram of normalised values against the
+                #' original
+                hist = function() {
+                  # Set up the plotting area to have 2 rows and 1 column
+                  par(mfrow = c(2, 1))
+
+                  # Plot the original data histogram
+                  hist(self$data,
+                       main = "Original Distribution",
+                       xlab = "Original")
+
+                  # Plot the normalised data histogram
+                  hist(self$normalised_data,
+                       main = "Normalised Distribution",
+                       xlab = "Normalised")
+
+                  # Reset the plotting area to the default single plot layout
+                  par(mfrow = c(1, 1))
                 },
                 #' @description Allows user to set manual breaks
                 #' @param brks User Defined Breaks
@@ -160,7 +179,7 @@ modldistr <- R6::R6Class("modldistr",
                   self$breaks <- brks
                   self$normalisation <- "Manual Breaks"
                   self$number_of_classes <- length(brks) - 1
-                  self$normalised_values <-
+                  self$normalised_data <-
                     piecenorm(self$data, brks, self$polarity)
                 })
 )
