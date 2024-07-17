@@ -1,7 +1,8 @@
 #' Classified observed data into a distribution class.
 #'
 #' Based on a series of statistical tests, uses bootstrapping to classify
-#' observed data into one of the following distributions: Binary, Uniform, Skewed, Normal or Bimodal.
+#' observed data into one of the following distributions: Binary, Uniform,
+#' Skewed, Normal or Bimodal.
 #' @importFrom moments skewness kurtosis
 #' @importFrom nortest ad.test
 #' @importFrom stats ks.test quantile shapiro.test density
@@ -21,7 +22,8 @@
   # Bootstrap resampling
   bootstrap_results <- replicate(n_bootstrap, {
     sample_data <- sample(data,
-                          size = min(c(ceiling(pc_bootstrap*(length(data))), 5000)),
+                          size = min(c(ceiling(pc_bootstrap *
+                                                 (length(data))), 5000)),
                           replace = FALSE)
     .classify_sample(sample_data)
   })
@@ -78,7 +80,7 @@
 #' @param data Observed data
 #'
 #' @keywords internal
-.check_for_outliers = function(data){
+.check_for_outliers <- function(data) {
   q <- quantile(data, c(0.25, 0.75))
   iqr <- diff(q)
   lower_fence <- q[1] - 1.5 * iqr
@@ -97,33 +99,33 @@
 #' @importFrom classInt classIntervals
 #'
 #' @keywords internal
-.recommend = function(x,
-                      distr,
-                      outliers,
-                      classInt_pref,
-                      nclasses){
-  if(distr == "Binary"){
-    tmp = list(norm = "minmax", brks = range(x))
+.recommend <- function(x,
+                       distr,
+                       outliers,
+                       classint_pref,
+                       nclasses) {
+  if (distr == "Binary") {
+    tmp <- list(norm = "minmax", brks = range(x))
   }
-  if(distr %in%
-     c("Uniform", "Normal", "Bimodal", "Unclassified") &&
-     sum(outliers) == 0){
-    tmp = list(norm = "minmax", brks = range(x))
+  if (distr %in%
+        c("Uniform", "Normal", "Bimodal", "Unclassified") &&
+        sum(outliers) == 0) {
+    tmp <- list(norm = "minmax", brks = range(x))
   }
-  if(sum(outliers) > 0 &&
-     distr %in% c("Uniform", "Normal", "Bimodal", "Unclassified")){
-    tmp = list(norm = "goalpost", brks = range(x[!outliers]))
+  if (sum(outliers) > 0 &&
+        distr %in% c("Uniform", "Normal", "Bimodal", "Unclassified")) {
+    tmp <- list(norm = "goalpost", brks = range(x[!outliers]))
   }
-  if(grepl("Skewed", distr)){
-    if(!is.null(nclasses)){
-      tmp = list(norm = classInt_pref, brks = classIntervals(x, n = nclasses, style = classInt_pref)$brks)
-    }else{
-      tmp = list(norm = classInt_pref, brks = classIntervals(x, style = classInt_pref)$brks)
+  if (grepl("Skewed", distr)) {
+    if (!is.null(nclasses)) {
+      tmp <- list(norm = classint_pref,
+                  brks = classIntervals(x, n = nclasses,
+                                        style = classint_pref)$brks)
+    } else {
+      tmp <- list(norm = classint_pref,
+                  brks = classIntervals(x, style = classint_pref)$brks)
     }
 
   }
   return(tmp)
 }
-
-
-

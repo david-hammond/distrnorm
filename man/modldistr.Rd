@@ -61,8 +61,14 @@ Original observations}
 Logical vector indicating is observations are
 outliers}
 
-\item{\code{likely_distribution}}{(\code{character()})\cr
+\item{\code{likely_distribution_with_outliers}}{(\code{character()})\cr
 Likely distribution type including outliers}
+
+\item{\code{likely_distribution_without_outliers}}{(\code{character()})\cr
+Likely distribution type iexcluding outliers}
+
+\item{\code{suggested_distribution}}{(\code{character()})\cr
+Suggested distribution}
 
 \item{\code{normalisation}}{(\code{character()})\cr
 Recommended class interval style based on
@@ -82,8 +88,6 @@ Which direction should the normalisation occur}
 
 \item{\code{percentiles}}{(\code{numeric()})\cr
 Observation percentiles}
-
-\item{\code{active}}{active bindings for functions}
 }
 \if{html}{\out{</div>}}
 }
@@ -93,6 +97,7 @@ Observation percentiles}
 \item \href{#method-modldistr-new}{\code{modldistr$new()}}
 \item \href{#method-modldistr-print}{\code{modldistr$print()}}
 \item \href{#method-modldistr-plot}{\code{modldistr$plot()}}
+\item \href{#method-modldistr-setManualBreaks}{\code{modldistr$setManualBreaks()}}
 \item \href{#method-modldistr-clone}{\code{modldistr$clone()}}
 }
 }
@@ -163,6 +168,23 @@ Plots the normalised values against the original
 \if{html}{\out{<div class="r">}}\preformatted{modldistr$plot()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-modldistr-setManualBreaks"></a>}}
+\if{latex}{\out{\hypertarget{method-modldistr-setManualBreaks}{}}}
+\subsection{Method \code{setManualBreaks()}}{
+Allows user to set manual breaks
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{modldistr$setManualBreaks(brks)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{brks}}{User Defined Breaks}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-modldistr-clone"></a>}}
