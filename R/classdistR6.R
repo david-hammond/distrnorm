@@ -14,8 +14,6 @@
 #' \item \strong{-1:} Highest value is normalised to 0, lowest value is
 #' normalised to 1
 #' }
-#' @param n_bootstrap Number of bootstrap iterations
-#' @param pc_bootstrap Sampling proportion for bootstrapping
 #' @param classint_pref Preference for classInt breaks
 #' @param num_classes_pref Preference for number of classInt breaks
 #' @examples
@@ -113,8 +111,6 @@ modldistr <- R6::R6Class("modldistr",
                 #' @return A new `modldistr` object.
                 initialize = function(x,
                                       polarity = 1,
-                                      n_bootstrap = 20,
-                                      pc_bootstrap = 0.8,
                                       classint_preference = "jenks",
                                       num_classes_pref = NULL,
                                       potential_distrs = c("unif",
@@ -130,10 +126,7 @@ modldistr <- R6::R6Class("modldistr",
                   self$outliers <- .check_for_outliers(x)
                   self$polarity <- polarity
                   tmp <-
-                    .classify_distribution(x,
-                                           n_bootstrap,
-                                           pc_bootstrap,
-                                           potential_distrs)
+                    .classify_distribution(x, potential_distrs)
                   tmp <- .recommend(x, tmp,
                                     self$outliers,
                                     classint_preference,
@@ -145,7 +138,7 @@ modldistr <- R6::R6Class("modldistr",
                   self$number_of_classes <- length(tmp$brks) - 1
                   self$normalised_data <-
                     piecenorm(x, self$breaks, self$polarity)
-                  self$percentiles <- n_prank(x)
+                  self$percentiles <- n_prank(self$normalised_data)
                 },
                 #' @description Prints the modldistr
                 print = function() {
@@ -189,5 +182,30 @@ modldistr <- R6::R6Class("modldistr",
                   self$number_of_classes <- length(brks) - 1
                   self$normalised_data <-
                     piecenorm(self$data, brks, self$polarity)
-                })
+                },
+                #' @description Applies the normalisation model to new data
+                #' @param x A numeric vector of observations
+                applyto = function(x){
+                  y <- self$clone()
+                  y$data <- x
+                  y$outliers <- .check_for_outliers(x)
+                  y$normalised_data <-
+                    piecenorm(x, y$breaks, y$polarity)
+                  y$percentiles <- n_prank(x)
+                  return(y)
+                },
+                #' @description Returns a data frame of the normalisation
+                to_data_frame = function(){
+                  tmp <- data.frame(original = self$data,
+                             percentile = self$percentiles)
+                  brks <- c(-Inf, self$breaks, Inf)
+                  int <- cut(self$data, breaks = brks,
+                                 include.lowest = TRUE)
+                  tmp$bins <- as.numeric(int)
+                  tmp$int <- int
+                  return(tmp)
+
+                }
+                )
+
 )

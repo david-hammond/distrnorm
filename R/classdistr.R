@@ -7,41 +7,26 @@
 #' @importFrom nortest ad.test
 #' @importFrom stats ks.test quantile shapiro.test density
 #' @param x A numeric vector of observations
-#' @param n_bootstrap Number of bootstrap iterations
-#' @param pc_bootstrap Sampling proportion for bootstrapping
 #' @keywords internal
 #'
 
-.classify_distribution <- function(data,
-                                   n_bootstrap = 20,
-                                   pc_bootstrap = 0.7,
+.classify_distribution <- function(x,
                                    potential_distrs) {
 
   # Step 0: Check for binary data
-  if (length(unique(data)) == 2) {
+  if (length(unique(x)) == 2) {
     return("Binary")
+  }else{
+    return(.classify_sample(x, potential_distrs))
   }
 
-  # Bootstrap resampling
-  bootstrap_results <- replicate(n_bootstrap, {
-    sample_data <- sample(data,
-                          size = min(c(ceiling(pc_bootstrap *
-                                                 (length(data))), 5000)),
-                          replace = FALSE)
-    .classify_sample(sample_data, potential_distrs)
-  })
-
-  # Aggregate results
-  result_table <- table(bootstrap_results)
-  most_likely_distribution <- names(result_table)[which.max(result_table)]
-
-  return(most_likely_distribution)
 }
 
 
 #' Helper function to classify a single sample
 #'
-#' @param sample Bootstrap sample
+#' @param sample sample observations
+#' @param potential_distrs The types of distributions to fit
 #'
 #' @keywords internal
 

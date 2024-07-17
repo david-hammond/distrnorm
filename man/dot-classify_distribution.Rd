@@ -4,18 +4,9 @@
 \alias{.classify_distribution}
 \title{Classified observed data into a distribution class.}
 \usage{
-.classify_distribution(
-  data,
-  n_bootstrap = 20,
-  pc_bootstrap = 0.7,
-  potential_distrs
-)
+.classify_distribution(x, potential_distrs)
 }
 \arguments{
-\item{n_bootstrap}{Number of bootstrap iterations}
-
-\item{pc_bootstrap}{Sampling proportion for bootstrapping}
-
 \item{x}{A numeric vector of observations}
 }
 \description{

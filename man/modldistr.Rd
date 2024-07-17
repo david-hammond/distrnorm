@@ -100,6 +100,8 @@ Fitted univariate model parameters}
 \item \href{#method-modldistr-plot}{\code{modldistr$plot()}}
 \item \href{#method-modldistr-hist}{\code{modldistr$hist()}}
 \item \href{#method-modldistr-setManualBreaks}{\code{modldistr$setManualBreaks()}}
+\item \href{#method-modldistr-applyto}{\code{modldistr$applyto()}}
+\item \href{#method-modldistr-to_data_frame}{\code{modldistr$to_data_frame()}}
 \item \href{#method-modldistr-clone}{\code{modldistr$clone()}}
 }
 }
@@ -116,8 +118,6 @@ Create a new modldistr object.
 \if{html}{\out{<div class="r">}}\preformatted{modldistr$new(
   x,
   polarity = 1,
-  n_bootstrap = 20,
-  pc_bootstrap = 0.8,
   classint_preference = "jenks",
   num_classes_pref = NULL,
   potential_distrs = c("unif", "power", "norm", "lnorm", "weibull", "pareto", "exp")
@@ -138,16 +138,16 @@ normalised to 1
 normalised to 1
 }}
 
-\item{\code{n_bootstrap}}{Number of bootstrap iterations}
-
-\item{\code{pc_bootstrap}}{Sampling proportion for bootstrapping}
-
 \item{\code{classint_preference}}{Prefernce for classInt breaks}
 
 \item{\code{num_classes_pref}}{Preference for number of classes for
 classInt intervals}
 
 \item{\code{potential_distrs}}{The types of distributions to fit}
+
+\item{\code{n_bootstrap}}{Number of bootstrap iterations}
+
+\item{\code{pc_bootstrap}}{Sampling proportion for bootstrapping}
 }
 \if{html}{\out{</div>}}
 }
@@ -202,6 +202,33 @@ Allows user to set manual breaks
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-modldistr-applyto"></a>}}
+\if{latex}{\out{\hypertarget{method-modldistr-applyto}{}}}
+\subsection{Method \code{applyto()}}{
+Applies the normalisation model to new data
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{modldistr$applyto(x)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{A numeric vector of observations}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-modldistr-to_data_frame"></a>}}
+\if{latex}{\out{\hypertarget{method-modldistr-to_data_frame}{}}}
+\subsection{Method \code{to_data_frame()}}{
+Returns a data frame of the normalisation
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{modldistr$to_data_frame()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-modldistr-clone"></a>}}

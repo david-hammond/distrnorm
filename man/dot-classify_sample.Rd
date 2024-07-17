@@ -7,7 +7,9 @@
 .classify_sample(sample, potential_distrs)
 }
 \arguments{
-\item{sample}{Bootstrap sample}
+\item{sample}{sample observations}
+
+\item{potential_distrs}{The types of distributions to fit}
 }
 \description{
 Helper function to classify a single sample
