@@ -4,6 +4,7 @@
 #' observed data into one of the following distributions: Binary, Uniform, Skewed, Normal or Bimodal.
 #' @importFrom moments skewness kurtosis
 #' @importFrom nortest ad.test
+#' @importFrom stats ks.test quantile shapiro.test density
 #' @param x A numeric vector of observations
 #' @param n_bootstrap Number of bootstrap iterations
 #' @param pc_bootstrap Sampling proportion for bootstrapping
