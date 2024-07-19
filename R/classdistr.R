@@ -70,28 +70,28 @@
   if (distr == "Binary") {
     tmp <- distr
     attributes(tmp)$model <- distr
-    tmp <- list(norm = "minmax", brks = range(x),
+    tmp <- list(norm = "minmax", brks = unique(range(x)),
                 mdl = tmp)
   } else {
     if(distr %in%
        c("unif", "norm")){
       if (sum(outliers) == 0) {
-        tmp <- list(norm = "minmax", brks = range(x),
+        tmp <- list(norm = "minmax", brks = unique(range(x)),
                     mdl = model_select(x, distr))
       }
       if (sum(outliers) > 0) {
-        tmp <- list(norm = "goalpost", brks = range(x[!outliers]),
+        tmp <- list(norm = "goalpost", brks = unique(range(x[!outliers])),
                     mdl = model_select(x[!outliers], distr))
       }
     } else{
       if (!is.null(nclasses)) {
         tmp <- list(norm = classint_pref,
-                    brks = classIntervals(x, n = nclasses,
-                                          style = classint_pref)$brks,
+                    brks = unique(classIntervals(x, n = nclasses,
+                                          style = classint_pref)$brks),
                     mdl = model_select(x, distr))
       } else {
         tmp <- list(norm = classint_pref,
-                    brks = classIntervals(x, style = classint_pref)$brks,
+                    brks = unique(classIntervals(x, style = classint_pref)$brks),
                     mdl = model_select(x, distr))
       }
     }
